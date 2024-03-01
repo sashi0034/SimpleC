@@ -2,7 +2,7 @@
 
 #include <format>
 
-#include "../SimpleC-Core/include/Example.h"
+#include "Example.h"
 
 int main()
 {
