@@ -1,10 +1,23 @@
-﻿// SimpleC.cpp : このファイルには 'main' 関数が含まれています。プログラム実行の開始と終了がそこで行われます。
-//
-#include "stdafx.h"
+﻿#include "stdafx.h"
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    std::ifstream file("Scripts/example.txt");
+
+    if (file.is_open())
+    {
+        std::cout << "Opened file!" << std::endl;
+        std::string line;
+        while (getline(file, line))
+        {
+            std::cout << line << '\n';
+        }
+        file.close();
+    }
+    else
+    {
+        std::cout << "Failed to open file" << std::endl;
+    }
 }
 
 // プログラムの実行: Ctrl + F5 または [デバッグ] > [デバッグなしで開始] メニュー
