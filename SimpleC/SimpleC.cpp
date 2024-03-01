@@ -1,7 +1,11 @@
 ﻿#include "stdafx.h"
 
+#include "../SimpleC-Core/include/Example.h"
+
 int main()
 {
+    std::cout << "Example value is " << SimpleC::ExampleValue(1) << "\n";
+
     std::ifstream file("Scripts/example.txt");
 
     if (file.is_open())
