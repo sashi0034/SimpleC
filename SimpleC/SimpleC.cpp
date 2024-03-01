@@ -1,10 +1,12 @@
 ﻿#include "stdafx.h"
 
+#include <format>
+
 #include "../SimpleC-Core/include/Example.h"
 
 int main()
 {
-    std::cout << "Example value is " << SimpleC::ExampleValue(1) << "\n";
+    std::cout << std::format("Example is {}\n", SimpleC::ExampleValue(1));
 
     std::ifstream file("Scripts/example.txt");
 
