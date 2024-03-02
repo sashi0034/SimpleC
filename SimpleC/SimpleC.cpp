@@ -1,13 +1,9 @@
 ﻿#include "stdafx.h"
 
-#include <format>
-
-#include "Example.h"
+#include <codecvt>
 
 int main()
 {
-    std::cout << std::format("Example is {}\n", SimpleC::ExampleValue(1));
-
     std::ifstream file("Scripts/example.txt");
 
     if (file.is_open())
