@@ -1,25 +1,27 @@
 ﻿#include "stdafx.h"
 
 #include <codecvt>
+#include <iso646.h>
 
 int main()
 {
     std::ifstream file("Scripts/example.txt");
+    if (not file)
+    {
+        std::cerr << "Failed to open file" << std::endl;
+        return 1;
+    }
 
-    if (file.is_open())
+    std::string u8str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+    std::u32string u32str;
+    utf8::utf8to32(u8str.begin(), u8str.end(), std::back_inserter(u32str));
+
+    for (char32_t ch : u32str)
     {
-        std::cout << "Opened file!" << std::endl;
-        std::string line;
-        while (getline(file, line))
-        {
-            std::cout << line << '\n';
-        }
-        file.close();
+        std::cout << static_cast<char>(ch);
     }
-    else
-    {
-        std::cout << "Failed to open file" << std::endl;
-    }
+    std::cout << std::endl;
 }
 
 // プログラムの実行: Ctrl + F5 または [デバッグ] > [デバッグなしで開始] メニュー
