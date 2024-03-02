@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
-#include <fstream>
-#include <string>
+
+#include "../SimpleC-Core/pch.h"
 #include "../utfcpp/utf8.h"

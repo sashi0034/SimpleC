@@ -1,25 +1,46 @@
 ﻿#include "stdafx.h"
 
 #include <codecvt>
-#include <iso646.h>
+#include <fstream>
+#include <iostream>
+
+#include "Tokenizer.h"
+
+namespace
+{
+    std::u32string openFile(std::string_view filename)
+    {
+        std::ifstream file(filename.data());
+        if (not file)
+        {
+            std::cerr << "Failed to open file." << std::endl;
+            return U"";
+        }
+
+        std::string u8str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+        std::u32string u32str;
+        utf8::utf8to32(u8str.begin(), u8str.end(), std::back_inserter(u32str));
+        return u32str;
+    }
+
+    inline std::string narrowUtf32(std::u32string_view str)
+    {
+        std::string result{};
+        utf8::utf32to8(str.begin(), str.end(), std::back_inserter(result));
+        return result;
+    }
+}
 
 int main()
 {
-    std::ifstream file("Scripts/example.txt");
-    if (not file)
+    const auto input = openFile("Scripts/example.txt");
+
+    const auto tokens = SimpleC::Tokenize(input).tokens;
+
+    for (const auto& t : tokens)
     {
-        std::cerr << "Failed to open file" << std::endl;
-        return 1;
-    }
-
-    std::string u8str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-
-    std::u32string u32str;
-    utf8::utf8to32(u8str.begin(), u8str.end(), std::back_inserter(u32str));
-
-    for (char32_t ch : u32str)
-    {
-        std::cout << static_cast<char>(ch);
+        std::cout << t.index() << " ";
     }
     std::cout << std::endl;
 }

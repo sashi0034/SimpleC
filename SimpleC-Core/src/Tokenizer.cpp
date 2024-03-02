@@ -34,7 +34,7 @@ namespace SimpleC
 
         while (not input.empty())
         {
-            char32_t front = input.front();
+            const char32_t front = input.front();
 
             // 空白文字をスキップ
             if (std::isspace(front))
@@ -48,6 +48,7 @@ namespace SimpleC
             {
                 String str{};
                 str.push_back(front);
+                input.remove_prefix(1);
                 result.tokens.emplace_back(TokenReserved{.str = str});
                 continue;
             }
