@@ -12,7 +12,7 @@ namespace
         {
             if (input.empty()) break;
             const auto front = input.front();
-            if (U'0' <= front && front <= '9')
+            if (U'0' <= front && front <= U'9')
             {
                 token.value = token.value * 10 + (front - U'0');
                 input.remove_prefix(1);
@@ -60,7 +60,7 @@ namespace SimpleC
                 continue;
             }
 
-            throw CompileException("Failed to Tokenize");
+            throw CompileException(L"形態素解析に失敗しました");
         }
 
         result.tokens.emplace_back(TokenEof());

@@ -3,11 +3,21 @@
 
 namespace SimpleC
 {
-    using String = std::u32string;
-    using StringView = std::u32string_view;
+    using String = std::wstring;
+    using StringView = std::wstring_view;
 
     class CompileException : public std::exception
     {
-        using std::exception::exception;
+    public:
+        CompileException(StringView what) :
+            std::exception("CompileException"),
+            m_message(what)
+        {
+        }
+
+        const String& message() const { return m_message; }
+
+    private:
+        String m_message;
     };
 }

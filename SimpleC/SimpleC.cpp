@@ -3,39 +3,20 @@
 #include <codecvt>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include "Tokenizer.h"
 
 namespace
 {
-    std::u32string openFile(std::string_view filename)
-    {
-        std::ifstream file(filename.data());
-        if (not file)
-        {
-            std::cerr << "Failed to open file." << std::endl;
-            return U"";
-        }
-
-        std::string u8str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-
-        std::u32string u32str;
-        utf8::utf8to32(u8str.begin(), u8str.end(), std::back_inserter(u32str));
-        return u32str;
-    }
-
-    inline std::string narrowUtf32(std::u32string_view str)
-    {
-        std::string result{};
-        utf8::utf32to8(str.begin(), str.end(), std::back_inserter(result));
-        return result;
-    }
 }
 
 int main()
 {
-    const auto input = openFile("Scripts/example.txt");
-
+    const std::wifstream wif("Scripts/example.txt");
+    std::wstringstream wss;
+    wss << wif.rdbuf();
+    const std::wstring input = wss.str();
     const auto tokens = SimpleC::Tokenize(input).tokens;
 
     for (const auto& t : tokens)
