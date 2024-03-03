@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "Tokenizer.h"
 
+#include "ThrowError.h"
+
 using namespace SimpleC;
 
 namespace
@@ -25,21 +27,21 @@ namespace
         return token;
     }
 
-    [[noreturn]]
-    void throwError(StringView initialInput, StringView input, StringView desc)
-    {
-        const size_t pos = input.data() - initialInput.data();
-        String message{};
-        message += L"{}\n"_fmt(initialInput);
-        message += L"{:>{}}^ {}\n"_fmt(L" ", pos, desc);
+    constexpr std::array allSymbols{L"+", L"-", L"*", L"/", L"(", L")"};
 
-        throw CompileException(message);
+    bool isSymbol(StringView input)
+    {
+        for (const auto s : allSymbols)
+        {
+            if (input[0] == s[0]) return true;
+        }
+        return false;
     }
 }
 
 namespace SimpleC
 {
-    TokenizedResult Tokenize(StringView input)
+    TokenizedResult ExecuteTokenize(StringView input)
     {
         const StringView initialInput = input;
         TokenizedResult result{};
@@ -56,7 +58,7 @@ namespace SimpleC
             }
 
             // 記号
-            if (front == U'+' || front == U'-')
+            if (isSymbol(input))
             {
                 String str{};
                 str.push_back(front);
@@ -72,7 +74,7 @@ namespace SimpleC
                 continue;
             }
 
-            throwError(initialInput, input, L"数値ではありません");
+            ThrowErrorAt(initialInput, input, L"数値ではありません");
         }
 
         result.tokens.emplace_back(TokenEof());

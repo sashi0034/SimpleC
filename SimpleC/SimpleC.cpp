@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "Parser.h"
 #include "Tokenizer.h"
 
 using namespace SimpleC;
@@ -27,13 +28,10 @@ int main()
 
     try
     {
-        const auto tokens = Tokenize(input).tokens;
+        const auto tokens = ExecuteTokenize(input);
+        const auto expr = ExecuteParse(tokens);
 
-        for (const auto& t : tokens)
-        {
-            std::cout << t.index() << " ";
-        }
-        std::cout << std::endl;
+        std::cout << expr.index() << std::endl;
     }
     catch (const CompileException& exception)
     {

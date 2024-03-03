@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <optional>
+
 #include "Forward.h"
 #include "Utils.h"
 
@@ -31,18 +33,15 @@ namespace SimpleC
         inline constexpr TokenKind Eof{2};
     }
 
-    class TokenType : public std::variant<
-            TokenReserved,
-            TokenNumber,
-            TokenEof>
-    {
-        using variant::variant;
-    };
+    using TokenType = std::variant<
+        TokenReserved,
+        TokenNumber,
+        TokenEof>;
 
     struct TokenizedResult
     {
         std::vector<TokenType> tokens;
     };
 
-    TokenizedResult Tokenize(StringView input);
+    TokenizedResult ExecuteTokenize(StringView input);
 }

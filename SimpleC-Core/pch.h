@@ -13,5 +13,7 @@
 #include <variant>
 #include <vector>
 #include <format>
+#include <array>
+#include <span>
 
 #endif //PCH_H
