@@ -25,12 +25,13 @@ namespace
         return token;
     }
 
+    [[noreturn]]
     void throwError(StringView initialInput, StringView input, StringView desc)
     {
         const size_t pos = input.data() - initialInput.data();
         String message{};
-        message += std::format(L"{}\n", initialInput);
-        message += std::format(L"{:>{}}^ {}\n", L" ", pos, desc);
+        message += L"{}\n"_fmt(initialInput);
+        message += L"{:>{}}^ {}\n"_fmt(L" ", pos, desc);
 
         throw CompileException(message);
     }

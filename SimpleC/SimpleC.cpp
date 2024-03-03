@@ -7,6 +7,8 @@
 
 #include "Tokenizer.h"
 
+using namespace SimpleC;
+
 namespace
 {
 }
@@ -25,7 +27,7 @@ int main()
 
     try
     {
-        const auto tokens = SimpleC::Tokenize(input).tokens;
+        const auto tokens = Tokenize(input).tokens;
 
         for (const auto& t : tokens)
         {
@@ -33,7 +35,7 @@ int main()
         }
         std::cout << std::endl;
     }
-    catch (const SimpleC::CompileException& exception)
+    catch (const CompileException& exception)
     {
         std::wcerr << exception.message() << std::endl;
     }
