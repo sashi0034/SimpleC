@@ -13,17 +13,30 @@ namespace
 
 int main()
 {
+    if (not setlocale(LC_ALL, "ja_JP.UTF-8"))
+    {
+        std::wcerr << L"Failed to Set Locale." << std::endl;
+    }
+
     const std::wifstream wif("Scripts/example.txt");
     std::wstringstream wss;
     wss << wif.rdbuf();
     const std::wstring input = wss.str();
-    const auto tokens = SimpleC::Tokenize(input).tokens;
 
-    for (const auto& t : tokens)
+    try
     {
-        std::cout << t.index() << " ";
+        const auto tokens = SimpleC::Tokenize(input).tokens;
+
+        for (const auto& t : tokens)
+        {
+            std::cout << t.index() << " ";
+        }
+        std::cout << std::endl;
     }
-    std::cout << std::endl;
+    catch (const SimpleC::CompileException& exception)
+    {
+        std::wcerr << exception.message() << std::endl;
+    }
 }
 
 // プログラムの実行: Ctrl + F5 または [デバッグ] > [デバッグなしで開始] メニュー

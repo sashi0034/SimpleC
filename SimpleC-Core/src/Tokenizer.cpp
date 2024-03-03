@@ -24,12 +24,23 @@ namespace
         }
         return token;
     }
+
+    void throwError(StringView initialInput, StringView input, StringView desc)
+    {
+        const size_t pos = input.data() - initialInput.data();
+        String message{};
+        message += std::format(L"{}\n", initialInput);
+        message += std::format(L"{:>{}}^ {}\n", L" ", pos, desc);
+
+        throw CompileException(message);
+    }
 }
 
 namespace SimpleC
 {
     TokenizedResult Tokenize(StringView input)
     {
+        const StringView initialInput = input;
         TokenizedResult result{};
 
         while (not input.empty())
@@ -60,7 +71,7 @@ namespace SimpleC
                 continue;
             }
 
-            throw CompileException(L"形態素解析に失敗しました");
+            throwError(initialInput, input, L"数値ではありません");
         }
 
         result.tokens.emplace_back(TokenEof());
