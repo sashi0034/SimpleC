@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 
 #include <codecvt>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -18,7 +19,10 @@ namespace
 int main()
 {
     constexpr std::wstring_view inputPath = L"Scripts/example.txt";
-    constexpr std::wstring_view outputPath = L"../target-linux/tmp.s";
+
+    constexpr std::string_view targetPath = "../target-linux/";
+    constexpr std::wstring_view outputPath = L"tmp.s";
+    constexpr std::string_view batchPath = "wsl ./run.sh";
 
     if (not setlocale(LC_ALL, "ja_JP.UTF-8"))
     {
@@ -36,6 +40,7 @@ int main()
         const auto expr = ExecuteParse(tokens);
         const auto code = GenerateCode(*expr);
 
+        current_path(std::filesystem::current_path() / targetPath);
         std::wofstream outputfile(outputPath.data());
         if (outputfile)
         {
@@ -45,7 +50,11 @@ int main()
         else
         {
             std::wcout << L"出力ファイルが開けません" << std::endl;
+            return 1;
         }
+
+        std::wcout << L"結果\n{} => "_fmt(input) << std::flush;
+        const int result = std::system(batchPath.data());
     }
     catch (const CompileException& exception)
     {
