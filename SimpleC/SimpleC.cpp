@@ -17,12 +17,15 @@ namespace
 
 int main()
 {
+    constexpr std::wstring_view inputPath = L"Scripts/example.txt";
+    constexpr std::wstring_view outputPath = L"../target-linux/tmp.s";
+
     if (not setlocale(LC_ALL, "ja_JP.UTF-8"))
     {
         std::wcerr << L"Failed to Set Locale." << std::endl;
     }
 
-    const std::wifstream wif("Scripts/example.txt");
+    const std::wifstream wif(inputPath.data());
     std::wstringstream wss;
     wss << wif.rdbuf();
     const std::wstring input = wss.str();
@@ -33,7 +36,16 @@ int main()
         const auto expr = ExecuteParse(tokens);
         const auto code = GenerateCode(*expr);
 
-        std::wcout << code << std::endl;
+        std::wofstream outputfile(outputPath.data());
+        if (outputfile)
+        {
+            std::wcout << code << std::endl;
+            outputfile << code << std::endl;
+        }
+        else
+        {
+            std::wcout << L"出力ファイルが開けません" << std::endl;
+        }
     }
     catch (const CompileException& exception)
     {

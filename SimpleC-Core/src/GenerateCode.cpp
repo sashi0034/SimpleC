@@ -50,7 +50,17 @@ namespace SimpleC
     String GenerateCode(const NodeObject& node)
     {
         String code{};
+        code += LR"(
+.intel_syntax noprefix
+.globl main
+
+main:
+)";
         generateCode(code, node);
+        code += LR"(
+  pop rax
+  ret
+)";
         return code;
     }
 }
