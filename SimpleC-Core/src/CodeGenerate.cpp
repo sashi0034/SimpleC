@@ -1,11 +1,11 @@
 ﻿#include "pch.h"
-#include "GenerateCode.h"
+#include "..\include\CodeGenerate.h"
 
 using namespace SimpleC;
 
 namespace
 {
-    void generateCode(String& code, const NodeObject& node)
+    void generate(String& code, const NodeObject& node)
     {
         if (const auto n = dynamic_cast<const NodeNumber*>(&node))
         {
@@ -16,8 +16,8 @@ namespace
         const auto branch = dynamic_cast<const NodeBranch*>(&node);
         assert(branch);
 
-        generateCode(code, *branch->lhs);
-        generateCode(code, *branch->rhs);
+        generate(code, *branch->lhs);
+        generate(code, *branch->rhs);
 
         code += L"  pop rdi\n";
         code += L"  pop rax\n";
@@ -47,7 +47,7 @@ namespace
 
 namespace SimpleC
 {
-    String GenerateCode(const NodeObject& node)
+    String CodeGenerate(const NodeObject& node)
     {
         String code{};
         code += LR"(
@@ -56,7 +56,7 @@ namespace SimpleC
 
 main:
 )";
-        generateCode(code, node);
+        generate(code, node);
         code += LR"(
   pop rax
   ret

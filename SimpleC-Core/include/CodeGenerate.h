@@ -3,5 +3,5 @@
 
 namespace SimpleC
 {
-    String GenerateCode(const NodeObject& node);
+    String CodeGenerate(const NodeObject& node);
 }

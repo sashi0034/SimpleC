@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "GenerateCode.h"
+#include "..\SimpleC-Core\include\CodeGenerate.h"
 #include "Parser.h"
 #include "Tokenizer.h"
 
@@ -38,7 +38,7 @@ int main()
     {
         const auto tokens = ExecuteTokenize(input);
         const auto expr = ExecuteParse(tokens);
-        const auto code = GenerateCode(*expr);
+        const auto code = CodeGenerate(*expr);
 
         current_path(std::filesystem::current_path() / targetPath);
         std::wofstream outputfile(outputPath.data());
