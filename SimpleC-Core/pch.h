@@ -15,5 +15,6 @@
 #include <format>
 #include <array>
 #include <span>
+#include <cassert>
 
 #endif //PCH_H

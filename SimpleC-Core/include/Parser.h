@@ -4,66 +4,57 @@
 
 namespace SimpleC
 {
-    class NodeKind : public EnumValue<int>
+    enum class NodeKind
     {
-    public:
-        using EnumValue::EnumValue;
+        Add,
+        Sub,
+        Mul,
+        Div,
+        Number,
     };
 
-    class NodeType;
-
-    struct NodeBranch
+    struct NodeObject
     {
-        std::unique_ptr<NodeType> lhs;
-        std::unique_ptr<NodeType> rhs;
-        NodeBranch(std::unique_ptr<NodeType> lhs, std::unique_ptr<NodeType> rhs);
+        virtual ~NodeObject() = default;
+        virtual NodeKind Kind() = 0;
+    };
+
+    struct NodeBranch : NodeObject
+    {
+        std::unique_ptr<NodeObject> lhs;
+        std::unique_ptr<NodeObject> rhs;
+        NodeBranch(std::unique_ptr<NodeObject> lhs, std::unique_ptr<NodeObject> rhs);
     };
 
     struct NodeAdd : NodeBranch
     {
         using NodeBranch::NodeBranch;
+        NodeKind Kind() override { return NodeKind::Add; }
     };
 
     struct NodeSub : NodeBranch
     {
         using NodeBranch::NodeBranch;
+        NodeKind Kind() override { return NodeKind::Sub; }
     };
 
     struct NodeMul : NodeBranch
     {
         using NodeBranch::NodeBranch;
+        NodeKind Kind() override { return NodeKind::Mul; }
     };
 
     struct NodeDiv : NodeBranch
     {
         using NodeBranch::NodeBranch;
+        NodeKind Kind() override { return NodeKind::Div; }
     };
 
-    struct NodeNumber
+    struct NodeNumber : NodeObject
     {
         int value;
+        NodeKind Kind() override { return NodeKind::Number; }
     };
 
-    namespace Nodes
-    {
-        inline constexpr NodeKind Add{0};
-        inline constexpr NodeKind Sub{1};
-        inline constexpr NodeKind Mul{2};
-        inline constexpr NodeKind Div{3};
-        inline constexpr NodeKind Number{4};
-    }
-
-    class NodeType : public std::variant<
-            NodeAdd,
-            NodeSub,
-            NodeMul,
-            NodeDiv,
-            NodeNumber>
-    {
-    public:
-        using variant::variant;
-        using variant::operator=;
-    };
-
-    NodeType ExecuteParse(const TokenizedResult& input);
+    std::unique_ptr<NodeObject> ExecuteParse(const TokenizedResult& input);
 }

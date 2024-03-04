@@ -58,10 +58,10 @@ namespace
         throw CompileException(L"数ではありません");
     }
 
-    unique_ptr<NodeType> expr(ReadingTokens& reading);
+    unique_ptr<NodeObject> expr(ReadingTokens& reading);
 
     // primary = num | "(" expr ")"
-    unique_ptr<NodeType> primary(ReadingTokens& reading)
+    unique_ptr<NodeObject> primary(ReadingTokens& reading)
     {
         // 次のトークンが"("なら、"(" expr ")"のはず
         if (tryConsume(reading, L"("))
@@ -72,25 +72,27 @@ namespace
         }
 
         // そうでなければ数値のはず
-        return std::make_unique<NodeType>(NodeNumber{.value = expectNumber(reading)});
+        NodeNumber nodeNumber{};
+        nodeNumber.value = expectNumber(reading);
+        return std::make_unique<NodeNumber>(nodeNumber);
     }
 
     // mul     = primary ("*" primary | "/" primary)*
-    unique_ptr<NodeType> mul(ReadingTokens& reading)
+    unique_ptr<NodeObject> mul(ReadingTokens& reading)
     {
-        unique_ptr<NodeType> node = primary(reading);
+        unique_ptr<NodeObject> node = primary(reading);
 
         while (true)
         {
             if (tryConsume(reading, L"*"))
             {
                 auto newNode = NodeMul(std::move(node), primary(reading));
-                node = std::make_unique<NodeType>(std::move(newNode));
+                node = std::make_unique<NodeMul>(std::move(newNode));
             }
             else if (tryConsume(reading, L"/"))
             {
                 auto newNode = NodeDiv(std::move(node), primary(reading));
-                node = std::make_unique<NodeType>(std::move(newNode));
+                node = std::make_unique<NodeDiv>(std::move(newNode));
             }
             else
             {
@@ -100,21 +102,21 @@ namespace
     }
 
     // expr    = mul ("+" mul | "-" mul)*
-    unique_ptr<NodeType> expr(ReadingTokens& reading)
+    unique_ptr<NodeObject> expr(ReadingTokens& reading)
     {
-        unique_ptr<NodeType> node = mul(reading);
+        unique_ptr<NodeObject> node = mul(reading);
 
         while (true)
         {
             if (tryConsume(reading, L"+"))
             {
                 auto newNode = NodeAdd(std::move(node), mul(reading));
-                node = std::make_unique<NodeType>(std::move(newNode));
+                node = std::make_unique<NodeAdd>(std::move(newNode));
             }
             else if (tryConsume(reading, L"-"))
             {
                 auto newNode = NodeSub(std::move(node), mul(reading));
-                node = std::make_unique<NodeType>(std::move(newNode));
+                node = std::make_unique<NodeSub>(std::move(newNode));
             }
             else
             {
@@ -126,20 +128,19 @@ namespace
 
 namespace SimpleC
 {
-    NodeBranch::NodeBranch(unique_ptr<NodeType> lhs, unique_ptr<NodeType> rhs) :
+    NodeBranch::NodeBranch(unique_ptr<NodeObject> lhs, unique_ptr<NodeObject> rhs) :
         lhs(std::move(lhs)),
         rhs(std::move(rhs))
     {
     }
 
-    NodeType ExecuteParse(const TokenizedResult& input)
+    std::unique_ptr<NodeObject> ExecuteParse(const TokenizedResult& input)
     {
         auto tokens = input.tokens;
         auto reading = ReadingTokens{
             .tokens = tokens,
             .head = 0,
         };
-        const auto result = expr(reading);
-        return std::move(*result);
+        return expr(reading);
     }
 }
