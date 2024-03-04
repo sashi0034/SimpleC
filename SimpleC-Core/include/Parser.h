@@ -16,7 +16,7 @@ namespace SimpleC
     struct NodeObject
     {
         virtual ~NodeObject() = default;
-        virtual NodeKind Kind() = 0;
+        virtual NodeKind Kind() const = 0;
     };
 
     struct NodeBranch : NodeObject
@@ -29,31 +29,31 @@ namespace SimpleC
     struct NodeAdd : NodeBranch
     {
         using NodeBranch::NodeBranch;
-        NodeKind Kind() override { return NodeKind::Add; }
+        NodeKind Kind() const override { return NodeKind::Add; }
     };
 
     struct NodeSub : NodeBranch
     {
         using NodeBranch::NodeBranch;
-        NodeKind Kind() override { return NodeKind::Sub; }
+        NodeKind Kind() const override { return NodeKind::Sub; }
     };
 
     struct NodeMul : NodeBranch
     {
         using NodeBranch::NodeBranch;
-        NodeKind Kind() override { return NodeKind::Mul; }
+        NodeKind Kind() const override { return NodeKind::Mul; }
     };
 
     struct NodeDiv : NodeBranch
     {
         using NodeBranch::NodeBranch;
-        NodeKind Kind() override { return NodeKind::Div; }
+        NodeKind Kind() const override { return NodeKind::Div; }
     };
 
     struct NodeNumber : NodeObject
     {
         int value;
-        NodeKind Kind() override { return NodeKind::Number; }
+        NodeKind Kind() const override { return NodeKind::Number; }
     };
 
     std::unique_ptr<NodeObject> ExecuteParse(const TokenizedResult& input);

@@ -15,6 +15,33 @@ namespace
 
         const auto branch = dynamic_cast<const NodeBranch*>(&node);
         assert(branch);
+
+        generateCode(code, *branch->lhs);
+        generateCode(code, *branch->rhs);
+
+        code += L"  pop rdi\n";
+        code += L"  pop rax\n";
+
+        switch (branch->Kind())
+        {
+        case NodeKind::Add:
+            code += L"  add rax, rdi\n";
+            break;
+        case NodeKind::Sub:
+            code += L"  sub rax, rdi\n";
+            break;
+        case NodeKind::Mul:
+            code += L"  imul rax, rdi\n";
+            break;
+        case NodeKind::Div:
+            code += L"  cqo\n";
+            code += L"  idiv rdi\n";
+            break;
+        default: ;
+            assert(false);
+        }
+
+        code += L"  push rax\n";
     }
 }
 
