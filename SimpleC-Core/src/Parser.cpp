@@ -77,21 +77,31 @@ namespace
         return std::make_unique<NodeNumber>(nodeNumber);
     }
 
-    // mul     = primary ("*" primary | "/" primary)*
+    // unary   = ("+" | "-")? primary
+    unique_ptr<NodeObject> unary(ReadingTokens& reading)
+    {
+        if (tryConsume(reading, L"+"))
+            return primary(reading);
+        if (tryConsume(reading, L"-"))
+            return std::make_unique<NodeSub>(std::make_unique<NodeNumber>(0), primary(reading));
+        return primary(reading);
+    }
+
+    // mul     = unary ("*" unary | "/" unary)*
     unique_ptr<NodeObject> mul(ReadingTokens& reading)
     {
-        unique_ptr<NodeObject> node = primary(reading);
+        unique_ptr<NodeObject> node = unary(reading);
 
         while (true)
         {
             if (tryConsume(reading, L"*"))
             {
-                auto newNode = NodeMul(std::move(node), primary(reading));
+                auto newNode = NodeMul(std::move(node), unary(reading));
                 node = std::make_unique<NodeMul>(std::move(newNode));
             }
             else if (tryConsume(reading, L"/"))
             {
-                auto newNode = NodeDiv(std::move(node), primary(reading));
+                auto newNode = NodeDiv(std::move(node), unary(reading));
                 node = std::make_unique<NodeDiv>(std::move(newNode));
             }
             else

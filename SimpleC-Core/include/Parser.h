@@ -52,6 +52,8 @@ namespace SimpleC
 
     struct NodeNumber : NodeObject
     {
+        NodeNumber(int value = 0): value(value) { return; }
+
         int value;
         NodeKind Kind() const override { return NodeKind::Number; }
     };

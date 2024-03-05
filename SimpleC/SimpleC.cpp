@@ -53,7 +53,7 @@ int main()
             return 1;
         }
 
-        std::wcout << L"結果\n{} => "_fmt(input) << std::flush;
+        std::wcout << L"結果\n{}\n=> "_fmt(input) << std::flush;
         const int result = std::system(batchPath.data());
     }
     catch (const CompileException& exception)
