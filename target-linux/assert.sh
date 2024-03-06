@@ -7,6 +7,6 @@ actual="$?"
 if [ "$actual" = "$expected" ]; then
   echo "[OK] $actual"
 else
-  echo "[FAIL] Expected: $expected | Actual: $actual"
+  echo "[FAILED] Expected: $expected | Actual: $actual"
   exit 1
 fi
