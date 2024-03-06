@@ -111,8 +111,8 @@ namespace
         }
     }
 
-    // expr    = mul ("+" mul | "-" mul)*
-    unique_ptr<NodeObject> expr(ReadingTokens& reading)
+    // add = mul ("+" mul | "-" mul)*
+    unique_ptr<NodeObject> add(ReadingTokens& reading)
     {
         unique_ptr<NodeObject> node = mul(reading);
 
@@ -133,6 +133,70 @@ namespace
                 return node;
             }
         }
+    }
+
+    // relational = add ("<" add | "<=" add | ">" add | ">=" add)*
+    unique_ptr<NodeObject> relational(ReadingTokens& reading)
+    {
+        unique_ptr<NodeObject> node = add(reading);
+
+        while (true)
+        {
+            if (tryConsume(reading, L"<"))
+            {
+                auto newNode = NodeLt(std::move(node), add(reading));
+                node = std::make_unique<NodeLt>(std::move(newNode));
+            }
+            else if (tryConsume(reading, L"<="))
+            {
+                auto newNode = NodeLe(std::move(node), add(reading));
+                node = std::make_unique<NodeLe>(std::move(newNode));
+            }
+            else if (tryConsume(reading, L">"))
+            {
+                auto newNode = NodeLt(add(reading), std::move(node));
+                node = std::make_unique<NodeLt>(std::move(newNode));
+            }
+            else if (tryConsume(reading, L">="))
+            {
+                auto newNode = NodeLe(add(reading), std::move(node));
+                node = std::make_unique<NodeLe>(std::move(newNode));
+            }
+            else
+            {
+                return node;
+            }
+        }
+    }
+
+    // equality = relational ("==" relational | "!=" relational)*
+    unique_ptr<NodeObject> equality(ReadingTokens& reading)
+    {
+        unique_ptr<NodeObject> node = relational(reading);
+
+        while (true)
+        {
+            if (tryConsume(reading, L"=="))
+            {
+                auto newNode = NodeEq(std::move(node), relational(reading));
+                node = std::make_unique<NodeEq>(std::move(newNode));
+            }
+            else if (tryConsume(reading, L"!="))
+            {
+                auto newNode = NodeNe(std::move(node), relational(reading));
+                node = std::make_unique<NodeNe>(std::move(newNode));
+            }
+            else
+            {
+                return node;
+            }
+        }
+    }
+
+    // expr = equality
+    unique_ptr<NodeObject> expr(ReadingTokens& reading)
+    {
+        return equality(reading);
     }
 }
 

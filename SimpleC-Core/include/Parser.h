@@ -10,6 +10,10 @@ namespace SimpleC
         Sub,
         Mul,
         Div,
+        Eq,
+        Ne,
+        Lt,
+        Le,
         Number,
     };
 
@@ -48,6 +52,30 @@ namespace SimpleC
     {
         using NodeBranch::NodeBranch;
         NodeKind Kind() const override { return NodeKind::Div; }
+    };
+
+    struct NodeEq : NodeBranch
+    {
+        using NodeBranch::NodeBranch;
+        NodeKind Kind() const override { return NodeKind::Eq; }
+    };
+
+    struct NodeNe : NodeBranch
+    {
+        using NodeBranch::NodeBranch;
+        NodeKind Kind() const override { return NodeKind::Ne; }
+    };
+
+    struct NodeLt : NodeBranch
+    {
+        using NodeBranch::NodeBranch;
+        NodeKind Kind() const override { return NodeKind::Lt; }
+    };
+
+    struct NodeLe : NodeBranch
+    {
+        using NodeBranch::NodeBranch;
+        NodeKind Kind() const override { return NodeKind::Le; }
     };
 
     struct NodeNumber : NodeObject

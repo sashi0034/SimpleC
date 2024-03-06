@@ -37,6 +37,28 @@ namespace
             code += L"  cqo\n";
             code += L"  idiv rdi\n";
             break;
+        case NodeKind::Eq:
+            code += L"  cmp rax, rdi\n";
+            code += L"  sete al\n";
+            code += L"  movzb rax, al\n";
+            break;
+        case NodeKind::Ne:
+            code += L"  cmp rax, rdi\n";
+            code += L"  setne al\n";
+            code += L"  movzb rax, al\n";
+            break;
+        case NodeKind::Lt:
+            code += L"  cmp rax, rdi\n";
+            code += L"  setl al\n";
+            code += L"  movzb rax, al\n";
+            break;
+        case NodeKind::Le:
+            code += L"  cmp rax, rdi\n";
+            code += L"  setle al\n";
+            code += L"  movzb rax, al\n";
+            break;
+        case NodeKind::Number:
+            break;
         default: ;
             assert(false);
         }

@@ -27,15 +27,19 @@ namespace
         return token;
     }
 
-    constexpr std::array allSymbols{L"+", L"-", L"*", L"/", L"(", L")"};
+    constexpr std::array allSymbols{
+        // 文字数が多い順から判定をする
+        L"<=", L">=", L"==", L"!=",
+        L"+", L"-", L"*", L"/", L"(", L")", L"<", L">",
+    };
 
-    bool isSymbol(StringView input)
+    StringView trySymbol(StringView input)
     {
-        for (const auto s : allSymbols)
+        for (const auto& s : allSymbols)
         {
-            if (input[0] == s[0]) return true;
+            if (input.starts_with(s)) return s;
         }
-        return false;
+        return {};
     }
 }
 
@@ -58,12 +62,10 @@ namespace SimpleC
             }
 
             // 記号
-            if (isSymbol(input))
+            if (const auto symbol = trySymbol(input); not symbol.empty())
             {
-                String str{};
-                str.push_back(front);
-                input.remove_prefix(1);
-                result.tokens.emplace_back(TokenReserved{.str = str});
+                input.remove_prefix(symbol.size());
+                result.tokens.emplace_back(TokenReserved{.str = symbol.data()});
                 continue;
             }
 
