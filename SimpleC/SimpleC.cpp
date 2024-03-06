@@ -22,7 +22,7 @@ int main()
 
     constexpr std::string_view targetPath = "../target-linux/";
     constexpr std::wstring_view outputPath = L"tmp.s";
-    constexpr std::string_view batchPath = "wsl ./run.sh";
+    constexpr std::string_view batchPath = "wsl ./assert.sh {}";
 
     if (not setlocale(LC_ALL, "ja_JP.UTF-8"))
     {
@@ -53,8 +53,8 @@ int main()
             return 1;
         }
 
-        std::wcout << L"結果\n{}\n=> "_fmt(input) << std::flush;
-        const int result = std::system(batchPath.data());
+        std::wcout << L"試行 1\n{}\n=> "_fmt(input) << std::flush;
+        const int result = std::system(std::format(batchPath, 0).data());
     }
     catch (const CompileException& exception)
     {
