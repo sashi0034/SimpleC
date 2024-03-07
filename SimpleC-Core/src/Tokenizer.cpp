@@ -65,21 +65,21 @@ namespace SimpleC
             if (const auto symbol = trySymbol(input); not symbol.empty())
             {
                 input.remove_prefix(symbol.size());
-                result.tokens.emplace_back(TokenReserved{.str = symbol.data()});
+                result.tokens.emplace_back(std::make_shared<TokenReserved>(symbol.data()));
                 continue;
             }
 
             // 数値
             if (std::isdigit(front))
             {
-                result.tokens.emplace_back(takeTokenNumber(input));
+                result.tokens.emplace_back(std::make_shared<TokenNumber>(takeTokenNumber(input)));
                 continue;
             }
 
             ThrowErrorAt(initialInput, input, L"数値ではありません");
         }
 
-        result.tokens.emplace_back(TokenEof());
+        result.tokens.emplace_back(std::make_shared<TokenEof>());
         return result;
     }
 }

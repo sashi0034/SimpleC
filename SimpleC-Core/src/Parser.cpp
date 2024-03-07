@@ -9,12 +9,12 @@ namespace
 {
     struct ReadingTokens
     {
-        std::span<TokenType> tokens;
+        std::span<TokenPtr> tokens;
         int head;
 
-        const TokenType& Next() const
+        const TokenBase& Next() const
         {
-            return tokens[head];
+            return *tokens[head];
         }
 
         bool IsEnd() const { return head == tokens.size(); }
@@ -23,7 +23,7 @@ namespace
     bool tryConsume(ReadingTokens& reading, StringView op)
     {
         if (reading.IsEnd()) return false;
-        if (const auto t = std::get_if<TokenReserved>(&reading.Next());
+        if (const auto t = dynamic_cast<const TokenReserved*>(&reading.Next());
             t != nullptr && t->str == op)
         {
             reading.head++;
@@ -37,7 +37,7 @@ namespace
         if (reading.IsEnd())
         {
         }
-        else if (const auto t = std::get_if<TokenReserved>(&reading.Next());
+        else if (const auto t = dynamic_cast<const TokenReserved*>(&reading.Next());
             t && t->str == op)
         {
             // OK
@@ -50,7 +50,7 @@ namespace
 
     int expectNumber(ReadingTokens& reading)
     {
-        if (const auto t = std::get_if<TokenNumber>(&reading.Next()))
+        if (const auto t = dynamic_cast<const TokenNumber*>(&reading.Next()))
         {
             reading.head++;
             return t->value;

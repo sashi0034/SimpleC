@@ -1,46 +1,49 @@
 ﻿#pragma once
-#include <optional>
 
 #include "Forward.h"
-#include "Utils.h"
 
 namespace SimpleC
 {
-    struct TokenReserved
+    enum class TokenKind
     {
+        Reserved,
+        Number,
+        Eof,
+    };
+
+    class TokenBase
+    {
+    public:
+        virtual ~TokenBase() = default;
+        virtual TokenKind Kind() const = 0;
+    };
+
+    struct TokenReserved : TokenBase
+    {
+        TokenReserved(String str = {}) : str(std::move(str)) { return; }
+        TokenKind Kind() const override { return TokenKind::Reserved; }
+
         String str;
     };
 
-    struct TokenNumber
+    struct TokenNumber : TokenBase
     {
+        TokenNumber(int v = {}) : value(v) { return; }
+        TokenKind Kind() const override { return TokenKind::Reserved; }
+
         int value;
     };
 
-    struct TokenEof
+    struct TokenEof : TokenBase
     {
+        TokenKind Kind() const override { return TokenKind::Eof; }
     };
 
-    class TokenKind : public EnumValue<int>
-    {
-    public:
-        using EnumValue::EnumValue;
-    };
-
-    namespace Tokens
-    {
-        inline constexpr TokenKind Reserved{0};
-        inline constexpr TokenKind Number{1};
-        inline constexpr TokenKind Eof{2};
-    }
-
-    using TokenType = std::variant<
-        TokenReserved,
-        TokenNumber,
-        TokenEof>;
+    using TokenPtr = std::shared_ptr<TokenBase>;
 
     struct TokenizedResult
     {
-        std::vector<TokenType> tokens;
+        std::vector<TokenPtr> tokens;
     };
 
     TokenizedResult ExecuteTokenize(StringView input);

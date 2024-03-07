@@ -42,7 +42,7 @@ namespace
                 return false;
             }
 
-            // std::wcout << L"試行 {}\t{}\n=> "_fmt(i, input) << std::flush;
+            // std::wcout << L">>> {}\t{}\n"_fmt(i, input) << std::flush;
             std::wcout << L"Line={}\t\t=> "_fmt(testCases[i].row) << std::flush;
             const int result = std::system(std::format(batchCommand, expected).data());
         }
