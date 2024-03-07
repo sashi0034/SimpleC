@@ -30,7 +30,7 @@ namespace
     constexpr std::array allSymbols{
         // 文字数が多い順から判定をする
         L"<=", L">=", L"==", L"!=",
-        L"+", L"-", L"*", L"/", L"(", L")", L"<", L">",
+        L"+", L"-", L"*", L"/", L"(", L")", L"<", L">", L"=", L";"
     };
 
     StringView trySymbol(StringView input)
@@ -55,7 +55,7 @@ namespace SimpleC
             const char32_t front = input.front();
 
             // 空白文字をスキップ
-            if (std::isspace(front))
+            if (std::isspace(front) || front == L'\r' || front == L'\n')
             {
                 input.remove_prefix(1);
                 continue;
@@ -66,6 +66,14 @@ namespace SimpleC
             {
                 input.remove_prefix(symbol.size());
                 result.tokens.emplace_back(std::make_shared<TokenReserved>(symbol.data()));
+                continue;
+            }
+
+            // 識別子
+            if (L'a' <= front && front <= 'z')
+            {
+                input.remove_prefix(1);
+                result.tokens.emplace_back(std::make_shared<TokenIdent>(front + L""));
                 continue;
             }
 

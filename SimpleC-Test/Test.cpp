@@ -27,8 +27,8 @@ namespace
             auto input = nextTest.input;
             auto expected = nextTest.output;
             const auto tokens = ExecuteTokenize(input);
-            const auto expr = ExecuteParse(tokens);
-            const auto code = CodeGenerate(*expr);
+            const auto prg = ExecuteParse(tokens);
+            const auto code = CodeGenerate(prg);
 
             std::wofstream outputfile(outputPath.data());
             if (outputfile)

@@ -6,15 +6,17 @@ namespace SimpleC
 {
     enum class NodeKind
     {
-        Add,
-        Sub,
-        Mul,
-        Div,
-        Eq,
-        Ne,
-        Lt,
-        Le,
-        Number,
+        Add, // +
+        Sub, // -
+        Mul, // *
+        Div, // /
+        Eq, // ==
+        Ne, // !=
+        Lt, // <
+        Le, // <=
+        Number, // 数値
+        Lvar, // ローカル変数
+        Assign, // =
     };
 
     struct NodeObject
@@ -23,10 +25,13 @@ namespace SimpleC
         virtual NodeKind Kind() const = 0;
     };
 
+    using NodePtr = std::unique_ptr<NodeObject>;
+
     struct NodeBranch : NodeObject
     {
-        std::unique_ptr<NodeObject> lhs;
-        std::unique_ptr<NodeObject> rhs;
+        NodePtr lhs;
+        NodePtr rhs;
+
         NodeBranch(std::unique_ptr<NodeObject> lhs, std::unique_ptr<NodeObject> rhs);
     };
 
@@ -80,11 +85,27 @@ namespace SimpleC
 
     struct NodeNumber : NodeObject
     {
-        NodeNumber(int value = 0): value(value) { return; }
-
         int value;
+
+        NodeNumber(int value = 0): value(value) { return; }
         NodeKind Kind() const override { return NodeKind::Number; }
     };
 
-    std::unique_ptr<NodeObject> ExecuteParse(const TokenizedResult& input);
+    struct NodeLvar : NodeObject
+    {
+        int offset;
+
+        explicit NodeLvar(int offset): offset(offset) { return; }
+        NodeKind Kind() const override { return NodeKind::Lvar; }
+    };
+
+    struct NodeAssign : NodeBranch
+    {
+        using NodeBranch::NodeBranch;
+        NodeKind Kind() const override { return NodeKind::Assign; }
+    };
+
+    using ProgramNodes = std::vector<NodePtr>;
+
+    ProgramNodes ExecuteParse(const TokenizedResult& input);
 }

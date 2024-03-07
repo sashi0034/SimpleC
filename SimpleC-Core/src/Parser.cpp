@@ -32,6 +32,16 @@ namespace
         return false;
     }
 
+    const TokenIdent* tryConsumeIdent(ReadingTokens& reading)
+    {
+        if (const auto t = dynamic_cast<const TokenIdent*>(&reading.Next()))
+        {
+            reading.head++;
+            return t;
+        }
+        return nullptr;
+    }
+
     void expect(ReadingTokens& reading, StringView op)
     {
         if (reading.IsEnd())
@@ -60,9 +70,15 @@ namespace
 
     unique_ptr<NodeObject> expr(ReadingTokens& reading);
 
-    // primary = num | "(" expr ")"
+    // primary    = num | ident | "(" expr ")"
     unique_ptr<NodeObject> primary(ReadingTokens& reading)
     {
+        if (const auto ident = tryConsumeIdent(reading))
+        {
+            // 左辺値
+            return std::make_unique<NodeLvar>((ident->str[0] - L'a' + 1) * 8);
+        }
+
         // 次のトークンが"("なら、"(" expr ")"のはず
         if (tryConsume(reading, L"("))
         {
@@ -77,7 +93,7 @@ namespace
         return std::make_unique<NodeNumber>(nodeNumber);
     }
 
-    // unary   = ("+" | "-")? primary
+    // unary      = ("+" | "-")? primary
     unique_ptr<NodeObject> unary(ReadingTokens& reading)
     {
         if (tryConsume(reading, L"+"))
@@ -87,7 +103,7 @@ namespace
         return primary(reading);
     }
 
-    // mul     = unary ("*" unary | "/" unary)*
+    // mul        = unary ("*" unary | "/" unary)*
     unique_ptr<NodeObject> mul(ReadingTokens& reading)
     {
         unique_ptr<NodeObject> node = unary(reading);
@@ -111,7 +127,7 @@ namespace
         }
     }
 
-    // add = mul ("+" mul | "-" mul)*
+    // dd        = mul ("+" mul | "-" mul)*
     unique_ptr<NodeObject> add(ReadingTokens& reading)
     {
         unique_ptr<NodeObject> node = mul(reading);
@@ -169,7 +185,7 @@ namespace
         }
     }
 
-    // equality = relational ("==" relational | "!=" relational)*
+    // equality   = relational ("==" relational | "!=" relational)*
     unique_ptr<NodeObject> equality(ReadingTokens& reading)
     {
         unique_ptr<NodeObject> node = relational(reading);
@@ -193,10 +209,42 @@ namespace
         }
     }
 
-    // expr = equality
-    unique_ptr<NodeObject> expr(ReadingTokens& reading)
+    // assign     = equality ("=" assign)?
+    NodePtr assign(ReadingTokens& reading)
     {
-        return equality(reading);
+        NodePtr node = equality(reading);
+        if (tryConsume(reading, L"="))
+        {
+            node = std::make_unique<NodeAssign>(std::move(node), assign(reading));
+        }
+        return node;
+    }
+
+    // expr       = assign
+    NodePtr expr(ReadingTokens& reading)
+    {
+        return assign(reading);
+    }
+
+    // stmt       = expr ";"
+    NodePtr stmt(ReadingTokens& reading)
+    {
+        NodePtr node = expr(reading);
+        expect(reading, L";");
+        return node;
+    }
+
+    // program    = stmt*
+    ProgramNodes program(ReadingTokens& reading)
+    {
+        ProgramNodes result{};
+
+        while (reading.Next().Kind() != TokenKind::Eof)
+        {
+            result.push_back(stmt(reading));
+        }
+
+        return result;
     }
 }
 
@@ -208,13 +256,13 @@ namespace SimpleC
     {
     }
 
-    std::unique_ptr<NodeObject> ExecuteParse(const TokenizedResult& input)
+    ProgramNodes ExecuteParse(const TokenizedResult& input)
     {
         auto tokens = input.tokens;
         auto reading = ReadingTokens{
             .tokens = tokens,
             .head = 0,
         };
-        return expr(reading);
+        return program(reading);
     }
 }

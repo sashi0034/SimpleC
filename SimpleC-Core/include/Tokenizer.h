@@ -7,6 +7,7 @@ namespace SimpleC
     enum class TokenKind
     {
         Reserved,
+        Ident,
         Number,
         Eof,
     };
@@ -22,6 +23,14 @@ namespace SimpleC
     {
         TokenReserved(String str = {}) : str(std::move(str)) { return; }
         TokenKind Kind() const override { return TokenKind::Reserved; }
+
+        String str;
+    };
+
+    struct TokenIdent : TokenBase
+    {
+        explicit TokenIdent(String str) : str(std::move(str)) { return; }
+        TokenKind Kind() const override { return TokenKind::Ident; }
 
         String str;
     };
