@@ -27,6 +27,14 @@ namespace
         return token;
     }
 
+    bool isAlnum(wchar_t c)
+    {
+        return ('a' <= c && c <= 'z')
+            || ('A' <= c && c <= 'Z')
+            || ('0' <= c && c <= '9')
+            || (c == '_');
+    }
+
     constexpr std::array allSymbols{
         // 文字数が多い順から判定をする
         L"<=", L">=", L"==", L"!=",
@@ -46,13 +54,18 @@ namespace
     {
         for (int i = 0; ; ++i)
         {
-            const bool isIdentChar = (i < input.size() - 1 && L'a' <= input[i] && input[i] <= 'z');
+            const bool isIdentChar = (i < input.size() - 1 && isAlnum(input[i]));
 
             if (not isIdentChar)
             {
                 return i > 0 ? StringView(input.data(), i) : StringView();
             }
         }
+    }
+
+    bool isReservedWord(const StringView ident)
+    {
+        return ident == L"return";
     }
 }
 
@@ -82,18 +95,19 @@ namespace SimpleC
                 continue;
             }
 
-            // 識別子
-            if (const auto ident = tryIdent(input); not ident.empty())
-            {
-                input.remove_prefix(ident.size());
-                result.tokens.emplace_back(std::make_shared<TokenIdent>(String(ident)));
-                continue;
-            }
-
             // 数値
             if (std::isdigit(front))
             {
                 result.tokens.emplace_back(std::make_shared<TokenNumber>(takeTokenNumber(input)));
+                continue;
+            }
+
+            // 識別子
+            if (const auto ident = tryIdent(input); not ident.empty())
+            {
+                input.remove_prefix(ident.size());
+                if (isReservedWord(ident)) result.tokens.emplace_back(std::make_shared<TokenReserved>(String(ident)));
+                else result.tokens.emplace_back(std::make_shared<TokenIdent>(String(ident)));
                 continue;
             }
 
