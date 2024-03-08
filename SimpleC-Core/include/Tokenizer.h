@@ -12,16 +12,18 @@ namespace SimpleC
         Eof,
     };
 
-    class TokenBase
+    struct TokenBase
     {
-    public:
+        explicit TokenBase(int pos): pos(pos) { return; }
         virtual ~TokenBase() = default;
         virtual TokenKind Kind() const = 0;
+
+        int pos;
     };
 
     struct TokenReserved : TokenBase
     {
-        TokenReserved(String str = {}) : str(std::move(str)) { return; }
+        TokenReserved(int pos, String str);
         TokenKind Kind() const override { return TokenKind::Reserved; }
 
         String str;
@@ -29,7 +31,7 @@ namespace SimpleC
 
     struct TokenIdent : TokenBase
     {
-        explicit TokenIdent(String str) : str(std::move(str)) { return; }
+        explicit TokenIdent(int pos, String str);
         TokenKind Kind() const override { return TokenKind::Ident; }
 
         String str;
@@ -37,7 +39,7 @@ namespace SimpleC
 
     struct TokenNumber : TokenBase
     {
-        TokenNumber(int v = {}) : value(v) { return; }
+        TokenNumber(int pos, int v);
         TokenKind Kind() const override { return TokenKind::Reserved; }
 
         int value;
@@ -45,6 +47,7 @@ namespace SimpleC
 
     struct TokenEof : TokenBase
     {
+        using TokenBase::TokenBase;
         TokenKind Kind() const override { return TokenKind::Eof; }
     };
 
@@ -52,6 +55,8 @@ namespace SimpleC
 
     struct TokenizedResult
     {
+        StringView input;
+        std::vector<int> tokenPositions;
         std::vector<TokenPtr> tokens;
     };
 

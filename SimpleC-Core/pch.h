@@ -10,6 +10,7 @@
 // プリコンパイルするヘッダーをここに追加します
 #include <iso646.h>
 #include <string>
+#include <sstream>
 #include <variant>
 #include <vector>
 #include <format>

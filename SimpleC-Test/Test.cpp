@@ -43,11 +43,12 @@ namespace
             }
 
             // std::wcout << L">>> {}\t{}\n"_fmt(i, input) << std::flush;
-            std::wcout << L"Line={}\t\t=> "_fmt(testCases[i].row) << std::flush;
+            std::wcout << L"試行={}\t\t=> "_fmt(testCases[i].row) << std::flush;
             const int result = std::system(std::format(batchCommand, expected).data());
         }
         catch (const CompileException& exception)
         {
+            std::wcerr << L"試行={}\t\tコンパイル失敗\n"_fmt(testCases[i].row);
             std::wcerr << exception.message() << std::endl;
         }
         return true;

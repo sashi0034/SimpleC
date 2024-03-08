@@ -7,9 +7,9 @@ using namespace SimpleC;
 
 namespace
 {
-    TokenNumber takeTokenNumber(StringView& input)
+    TokenNumber takeTokenNumber(int pos, StringView& input)
     {
-        TokenNumber token{};
+        TokenNumber token{pos, 0};
         while (true)
         {
             if (input.empty()) break;
@@ -71,10 +71,28 @@ namespace
 
 namespace SimpleC
 {
+    TokenReserved::TokenReserved(int pos, String str) :
+        TokenBase(pos),
+        str(std::move(str))
+    {
+    }
+
+    TokenIdent::TokenIdent(int pos, String str) :
+        TokenBase(pos),
+        str(std::move(str))
+    {
+    }
+
+    TokenNumber::TokenNumber(int pos, int v) :
+        TokenBase(pos),
+        value(v)
+    {
+    }
+
     TokenizedResult ExecuteTokenize(StringView input)
     {
         const StringView initialInput = input;
-        TokenizedResult result{};
+        TokenizedResult result{.input = input};
 
         while (not input.empty())
         {
@@ -87,18 +105,20 @@ namespace SimpleC
                 continue;
             }
 
+            const int pos = input.data() - initialInput.data();
+
             // 記号
             if (const auto symbol = trySymbol(input); not symbol.empty())
             {
                 input.remove_prefix(symbol.size());
-                result.tokens.emplace_back(std::make_shared<TokenReserved>(symbol.data()));
+                result.tokens.emplace_back(std::make_shared<TokenReserved>(pos, symbol.data()));
                 continue;
             }
 
             // 数値
             if (std::isdigit(front))
             {
-                result.tokens.emplace_back(std::make_shared<TokenNumber>(takeTokenNumber(input)));
+                result.tokens.emplace_back(std::make_shared<TokenNumber>(takeTokenNumber(pos, input)));
                 continue;
             }
 
@@ -106,15 +126,17 @@ namespace SimpleC
             if (const auto ident = tryIdent(input); not ident.empty())
             {
                 input.remove_prefix(ident.size());
-                if (isReservedWord(ident)) result.tokens.emplace_back(std::make_shared<TokenReserved>(String(ident)));
-                else result.tokens.emplace_back(std::make_shared<TokenIdent>(String(ident)));
+                if (isReservedWord(ident))
+                    result.tokens.emplace_back(std::make_shared<TokenReserved>(pos, String(ident)));
+                else
+                    result.tokens.emplace_back(std::make_shared<TokenIdent>(pos, String(ident)));
                 continue;
             }
 
             ThrowErrorAt(initialInput, input, L"数値ではありません");
         }
 
-        result.tokens.emplace_back(std::make_shared<TokenEof>());
+        result.tokens.emplace_back(std::make_shared<TokenEof>(initialInput.size()));
         return result;
     }
 }

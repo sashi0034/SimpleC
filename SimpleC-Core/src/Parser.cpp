@@ -1,5 +1,7 @@
 ﻿#include "pch.h"
 #include "Parser.h"
+
+#include "ThrowError.h"
 #include "Utils.h"
 
 using namespace SimpleC;
@@ -15,6 +17,7 @@ namespace
 
     struct ReadingTokens
     {
+        StringView input;
         std::span<TokenPtr> tokens;
         int head;
         std::vector<LVar> lvars;
@@ -80,7 +83,7 @@ namespace
             return;
         }
 
-        throw CompileException(L"{}ではありません"_fmt(op));
+        ThrowErrorAt(reading.input, reading.Next().pos, L"{}ではありません"_fmt(op));
     }
 
     int expectNumber(ReadingTokens& reading)
@@ -90,7 +93,7 @@ namespace
             reading.head++;
             return t->value;
         }
-        throw CompileException(L"数ではありません");
+        ThrowErrorAt(reading.input, reading.Next().pos, L"数ではありません");
     }
 
     unique_ptr<NodeObject> expr(ReadingTokens& reading);
@@ -286,6 +289,7 @@ namespace SimpleC
     {
         auto tokens = input.tokens;
         auto reading = ReadingTokens{
+            .input = input.input,
             .tokens = tokens,
             .head = 0,
         };
