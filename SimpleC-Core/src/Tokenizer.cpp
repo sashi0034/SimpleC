@@ -41,6 +41,19 @@ namespace
         }
         return {};
     }
+
+    StringView tryIdent(StringView input)
+    {
+        for (int i = 0; ; ++i)
+        {
+            const bool isIdentChar = (i < input.size() - 1 && L'a' <= input[i] && input[i] <= 'z');
+
+            if (not isIdentChar)
+            {
+                return i > 0 ? StringView(input.data(), i) : StringView();
+            }
+        }
+    }
 }
 
 namespace SimpleC
@@ -70,10 +83,10 @@ namespace SimpleC
             }
 
             // 識別子
-            if (L'a' <= front && front <= 'z')
+            if (const auto ident = tryIdent(input); not ident.empty())
             {
-                input.remove_prefix(1);
-                result.tokens.emplace_back(std::make_shared<TokenIdent>(front + L""));
+                input.remove_prefix(ident.size());
+                result.tokens.emplace_back(std::make_shared<TokenIdent>(String(ident)));
                 continue;
             }
 

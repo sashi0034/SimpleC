@@ -7,10 +7,17 @@ using std::unique_ptr;
 
 namespace
 {
+    struct LVar
+    {
+        StringView name;
+        int offset;
+    };
+
     struct ReadingTokens
     {
         std::span<TokenPtr> tokens;
         int head;
+        std::vector<LVar> lvars;
 
         const TokenBase& Next() const
         {
@@ -19,6 +26,24 @@ namespace
 
         bool IsEnd() const { return head == tokens.size(); }
     };
+
+    int searchLvarOffset(ReadingTokens& reading, StringView ident)
+    {
+        const auto found = std::ranges::find_if(reading.lvars, [&](const LVar& lv)
+        {
+            return lv.name == ident;
+        });
+        if (found != reading.lvars.end())
+        {
+            // 既に登場したローカル変数
+            return found->offset;
+        }
+
+        // 新規ローカル変数
+        const auto newLvar = LVar{.name = ident, .offset = static_cast<int>(reading.lvars.size() + 1) * 8};
+        reading.lvars.push_back(newLvar);
+        return newLvar.offset;
+    }
 
     bool tryConsume(ReadingTokens& reading, StringView op)
     {
@@ -76,7 +101,8 @@ namespace
         if (const auto ident = tryConsumeIdent(reading))
         {
             // 左辺値
-            return std::make_unique<NodeLvar>((ident->str[0] - L'a' + 1) * 8);
+            const int offset = searchLvarOffset(reading, ident->str);
+            return std::make_unique<NodeLvar>(offset);
         }
 
         // 次のトークンが"("なら、"(" expr ")"のはず

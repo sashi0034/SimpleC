@@ -44,7 +44,7 @@ namespace Test
         TestCase nextTest{};
         NextRead nextRead = NextRead::Idle;
         std::wstring line;
-        int row{1};
+        int row{};
         while (std::getline(file, line))
         {
             row++;
